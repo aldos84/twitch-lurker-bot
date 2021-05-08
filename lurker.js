@@ -2,7 +2,7 @@ const tmi = require("tmi.js");
 const dateFormat = require("dateformat");
 const config = require("./config");
 
-const {username, token, channels} = config
+const {username, token, channels, messages} = config
 
 if (!username) {
     console.error("[ERROR] You need to provide a username!");
@@ -38,6 +38,12 @@ const getCurrentTime = () => {
     return `[${dateFormat(d, "yyyy-mm-dd HH:MM:ss")}]`;
 }
 
+function randomMessage(channel) {
+    var chMsg = messages[channel.substring(1)];
+    var rnd = Math.floor(Math.random() * chMsg.length);
+    client.say(channel, chMsg[rnd]);
+}
+
 const client = new tmi.client(tmiOptions);
 client.connect();
 
@@ -48,6 +54,9 @@ client.on("logon", () => {
 client.on("join", (channel, username) => {
     if (username == user) {
         console.log(`${getCurrentTime()} Joined channel "${channel.substring(1)}".`);
+        setInterval(function() {
+            randomMessage(channel);
+        }, messages.interval * 60 * 1000);
     }
 });
 
